@@ -153,6 +153,8 @@ enum Gravity {
 	G_BOTTOMLEFT = G_BOTTOM | G_LEFT,
 	G_BOTTOMRIGHT = G_BOTTOM | G_RIGHT,
 
+	G_CENTER = G_HCENTER | G_VCENTER,
+
 	G_VERTMASK = 3 << 2,
 };
 
@@ -680,6 +682,8 @@ public:
 	virtual void Key(const KeyInput &key) override;
 	virtual void Touch(const TouchInput &touch) override;
 
+	Event OnTextChange;
+
 private:
 	void InsertAtCaret(const char *text);
 
@@ -743,20 +747,6 @@ public:
 
 private:
 	Thin3DTexture *texture_;
-	uint32_t color_;
-	ImageSizeMode sizeMode_;
-};
-
-// ImageFileView takes a filename and keeps track of the texture by itself.
-class ImageFileView : public InertView {
-public:
-	ImageFileView(std::string filename, ImageSizeMode sizeMode, LayoutParams *layoutParams = 0);
-	~ImageFileView();
-	virtual void GetContentDimensions(const UIContext &dc, float &w, float &h) const;
-	virtual void Draw(UIContext &dc);
-
-private:
-	Texture *texture_;
 	uint32_t color_;
 	ImageSizeMode sizeMode_;
 };

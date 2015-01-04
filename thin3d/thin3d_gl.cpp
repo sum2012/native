@@ -186,12 +186,12 @@ bool Thin3DGLShader::Compile(const char *source) {
 
 	glShaderSource(shader_, 1, &source, 0);
 	glCompileShader(shader_);
-	GLint success;
+	GLint success = 0;
 	glGetShaderiv(shader_, GL_COMPILE_STATUS, &success);
 	if (!success) {
 #define MAX_INFO_LOG_SIZE 2048
 		GLchar infoLog[MAX_INFO_LOG_SIZE];
-		GLsizei len;
+		GLsizei len = 0;
 		glGetShaderInfoLog(shader_, MAX_INFO_LOG_SIZE, &len, infoLog);
 		infoLog[len] = '\0';
 		glDeleteShader(shader_);
@@ -285,11 +285,7 @@ public:
 	Thin3DShader *CreateFragmentShader(const char *glsl_source, const char *hlsl_source);
 
 	void SetScissorEnabled(bool enable) override {
-		if (enable) {
-			glstate.scissorTest.enable();
-		} else {
-			glstate.scissorTest.disable();
-		}
+		glstate.scissorTest.set(enable);
 	}
 
 	void SetScissorRect(int left, int top, int width, int height) override {
@@ -696,6 +692,7 @@ void Thin3DGLContext::DrawIndexed(T3DPrimitive prim, Thin3DShaderSet *pipeline, 
 	Thin3DGLVertexFormat *fmt = static_cast<Thin3DGLVertexFormat *>(format);
 
 	vbuf->Bind();
+	ibuf->Bind();
 	fmt->Apply();
 	pipe->Apply();
 	
@@ -755,6 +752,8 @@ void Thin3DGLVertexFormat::Apply() {
 		case UNORM8x4:
 			glVertexAttribPointer(components_[i].semantic, 4, GL_UNSIGNED_BYTE, GL_TRUE, stride_, (void *)(intptr_t)components_[i].offset);
 			break;
+		case INVALID:
+			ELOG("Thin3DGLVertexFormat: Invalid component type applied.");
 		}
 	}
 }
